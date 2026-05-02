@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lucidia - AI Dementia Care</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+                sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              'brand-primary': '#6366F1',
+              'brand-secondary': '#818CF8',
+              'brand-accent': '#EC4899',
+              'brand-text': '#334155',
+              'brand-text-light': '#64748b',
+              'brand-primary-light': '#C7D2FE',
+              'brand-background': '#F9FAFB',
+              'brand-surface': '#FFFFFF',
+              'brand-danger': '#EF4444',
+              'brand-warning': '#F59E0B',
+              'brand-success': '#10B981',
+            },
+            keyframes: {
+              shimmer: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100%)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
