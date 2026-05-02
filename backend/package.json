@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts"
+    "dev": "tsx server.ts",
+    "start": "node --import tsx/esm server.ts"
   },
   "dependencies": {
     "express": "^5.2.1",
