@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html { color-scheme: light; }
 body { font-family: 'Poppins', sans-serif; background-color: #F9FAFB; margin: 0; }
