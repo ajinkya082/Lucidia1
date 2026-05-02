@@ -7,7 +7,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Import Routes
+// Routes
 import authRoutes from './routes/auth.ts';
 import userRoutes from './routes/users.ts';
 import faceRoutes from './routes/faces.ts';
@@ -17,14 +17,21 @@ import alertRoutes from './routes/alerts.ts';
 import gpsRoutes from './routes/gps.ts';
 import safeZoneRoutes from './routes/safeZones.ts';
 
-dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.env') });
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Load env
+dotenv.config();
+
+// ✅ FIXED: Disable Python on Render
 function startFaceAPI() {
+  if (process.env.RENDER) {
+    console.log('[FaceAPI] Skipped on Render');
+    return;
+  }
+
   const apiPath = path.join(__dirname, '..', 'Module', 'api.py');
-  const python  = process.platform === 'win32' ? 'py' : 'python3';
-  const args    = process.platform === 'win32' ? ['-3.11', apiPath] : [apiPath];
+  const python = process.platform === 'win32' ? 'py' : 'python3';
+  const args = process.platform === 'win32' ? ['-3.11', apiPath] : [apiPath];
 
   const proc = spawn(python, args, {
     cwd: path.join(__dirname, '..', 'Module'),
@@ -32,26 +39,18 @@ function startFaceAPI() {
     env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
   });
 
-  proc.stdout.on('data', (d) => console.log('[FaceAPI]', d.toString().trim()));
-  proc.stderr.on('data', (d) => console.error('[FaceAPI]', d.toString().trim()));
+  proc.stdout.on('data', (d) => console.log('[FaceAPI]', d.toString()));
+  proc.stderr.on('data', (d) => console.error('[FaceAPI]', d.toString()));
 
   proc.on('exit', (code) => {
-    if (code !== 0) {
-      console.warn(`[FaceAPI] exited with code ${code}. Restarting in 5s...`);
-      setTimeout(startFaceAPI, 5000);
-    }
+    console.warn(`[FaceAPI] exited with code ${code}`);
   });
 
-  // Kill Python process when Node exits
   process.on('exit', () => proc.kill());
-  process.on('SIGINT', () => { proc.kill(); process.exit(); });
-  process.on('SIGTERM', () => { proc.kill(); process.exit(); });
-
-  console.log('[FaceAPI] Starting face recognition module...');
 }
 
+// Start server
 async function startServer() {
-  // Auto-start Python face recognition module
   startFaceAPI();
 
   const app = express();
@@ -59,26 +58,23 @@ async function startServer() {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.ALLOWED_ORIGIN || "*",
       methods: ["GET", "POST"]
     }
   });
 
-  const PORT = 3000;
-
-  const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:5173";
+  // ✅ FIXED: dynamic port (REQUIRED FOR RENDER)
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
   app.use(cors({
-    origin: ALLOWED_ORIGIN,
+    origin: process.env.ALLOWED_ORIGIN || "*",
     credentials: true
   }));
 
-  // =============================
-  // SOCKET.IO
-  // =============================
+  // SOCKET
   io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
@@ -99,9 +95,7 @@ async function startServer() {
     });
   });
 
-  // =============================
   // ROUTES
-  // =============================
   app.use('/api/auth', authRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/faces', faceRoutes);
@@ -115,19 +109,19 @@ async function startServer() {
     res.json({ status: 'ok' });
   });
 
-  // Global error handler must be AFTER all routes
+  // ERROR HANDLER
   app.use((err: any, req: any, res: any, next: any) => {
     console.error("GLOBAL ERROR:", err.message);
 
     if (err.type === 'entity.too.large') {
-      return res.status(413).json({ message: "Payload too large. Please upload a smaller file." });
+      return res.status(413).json({ message: "Payload too large" });
     }
 
     res.status(500).json({ message: err.message || "Internal server error" });
   });
 
   httpServer.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
   });
 }
 
