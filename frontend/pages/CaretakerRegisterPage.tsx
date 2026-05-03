@@ -24,7 +24,7 @@ const CaretakerRegisterPage: React.FC = () => {
 
     try {
       // ✅ STEP 1: Register caretaker in backend
-      const res = await fetch("http://localhost:3000/api/auth/register", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -47,17 +47,10 @@ const CaretakerRegisterPage: React.FC = () => {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
 
       const token = await userCred.user.getIdToken();
-
-      console.log("FIREBASE TOKEN:", token);
-
-      localStorage.setItem("token", token);
+      localStorage.setItem('token', token);
 
       // ✅ STEP 3: Find patient
       const patient = await findPatient(patientCode.toUpperCase());
-
-      console.log("PATIENT RESPONSE:", patient);
-
-      // ✅ Firestore uses "id" not "_id"
       const patientId = patient?.id;
 
       if (!patientId) {

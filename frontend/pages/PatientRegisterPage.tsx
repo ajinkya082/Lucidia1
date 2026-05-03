@@ -1,20 +1,17 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../components/ui/Button';
 import { ShieldCheckIcon, ArrowLeftIcon } from '../components/icons/Icons';
-import { useUserStore } from '../store/userStore';
 import { UserRole } from '../types';
-import { registerUser } from '../../backend/auth';
+
+const API = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const PatientRegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { addUser } = useUserStore();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [patientCode, setPatientCode] = useState('');
   const [loading, setLoading] = useState(false);
-  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,11 +21,20 @@ const PatientRegisterPage: React.FC = () => {
     setLoading(true);
     try {
       const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-      await registerUser(email, password, { name, role: UserRole.PATIENT, patientCode: newCode });
+
+      const res = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role: UserRole.PATIENT, patientCode: newCode }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+
       setPatientCode(newCode);
       setIsSubmitted(true);
     } catch (err: any) {
-      alert(err.message || "Registration failed. Please try again.");
+      alert(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -38,11 +44,7 @@ const PatientRegisterPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
       <div className="max-w-md w-full p-10 glass-card bg-white shadow-2xl rounded-3xl relative">
         {!isSubmitted && (
-          <button 
-            onClick={() => navigate('/register')}
-            className="absolute top-6 left-6 p-2 text-brand-text-light hover:text-brand-primary transition-colors"
-            title="Back"
-          >
+          <button onClick={() => navigate('/register')} className="absolute top-6 left-6 p-2 text-brand-text-light hover:text-brand-primary transition-colors">
             <ArrowLeftIcon />
           </button>
         )}
