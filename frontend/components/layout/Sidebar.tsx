@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { getNavLinks } from '../../constants';
@@ -11,97 +11,127 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
+const SidebarContent: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { user, logout } = useAuthStore();
   const navLinks = getNavLinks(user?.role || UserRole.PATIENT);
-
-  const sidebarVariants = {
-    open: { x: 0 },
-    closed: { x: '-100%' },
-  };
-
-  const navItemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: {
-        delay: i * 0.05 + 0.1,
-      },
-    }),
-  };
-
-  const activeLinkStyle = {
-    backgroundColor: '#C7D2FE',
-    color: '#334155',
-  };
-
-  const renderLinks = () => navLinks.map((link, i) => (
-    <motion.li key={link.href} custom={i} variants={navItemVariants}>
-      <NavLink
-        to={link.href}
-        onClick={() => setIsOpen(false)}
-        style={({ isActive }) => (isActive ? activeLinkStyle : {})}
-        className="flex items-center p-3 my-1 rounded-xl text-brand-text-light hover:bg-brand-primary-light hover:text-brand-text transition-all duration-200"
-      >
-        <span className="w-6 h-6 mr-3">{link.icon}</span>
-        <span className="font-semibold">{link.label}</span>
-      </NavLink>
-    </motion.li>
-  ));
+  const activeLinkStyle = { backgroundColor: '#C7D2FE', color: '#334155' };
 
   return (
-    <>
-      <AnimatePresence>
-        {isOpen && (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #f1f5f9' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#6366F1', letterSpacing: '-0.05em', margin: 0 }}>Lucidia</h1>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px' }}>
+          <XMarkIcon />
+        </button>
+      </div>
+
+      {/* Nav links */}
+      <nav style={{ flex: 1, padding: '16px', overflowY: 'auto' }}>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          {navLinks.map(link => (
+            <li key={link.href} style={{ marginBottom: '4px' }}>
+              <NavLink
+                to={link.href}
+                onClick={onClose}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  borderRadius: '12px',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  color: isActive ? '#334155' : '#64748b',
+                  backgroundColor: isActive ? '#C7D2FE' : 'transparent',
+                  transition: 'all 0.2s',
+                })}
+                onMouseEnter={e => { if (!(e.currentTarget as any)._active) (e.currentTarget as HTMLElement).style.backgroundColor = '#EEF2FF'; }}
+                onMouseLeave={e => { if (!(e.currentTarget as any)._active) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
+              >
+                <span style={{ width: '20px', height: '20px', marginRight: '12px', flexShrink: 0 }}>{link.icon}</span>
+                {link.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Profile + Logout */}
+      <div style={{ padding: '16px', borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ marginBottom: '12px', padding: '0 12px' }}>
+          <p style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px' }}>Profile</p>
+          <p style={{ fontWeight: 700, color: '#334155', fontSize: '0.875rem', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</p>
+          <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, textTransform: 'capitalize' }}>{user?.role}</p>
+        </div>
+        <button
+          onClick={logout}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: '12px', border: 'none', background: 'none', cursor: 'pointer', color: '#64748b', fontWeight: 700, fontSize: '0.875rem', transition: 'all 0.2s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#FEF2F2'; (e.currentTarget as HTMLElement).style.color = '#B91C1C'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#64748b'; }}
+        >
+          <span style={{ width: '20px', height: '20px', marginRight: '12px' }}><ArrowLeftOnRectangleIcon /></span>
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handler = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  const sidebarStyle: React.CSSProperties = {
+    width: '256px',
+    backgroundColor: '#ffffff',
+    boxShadow: '1px 0 4px rgba(0,0,0,0.06)',
+    flexShrink: 0,
+    height: '100vh',
+    position: 'sticky',
+    top: 0,
+    display: 'flex',
+    flexDirection: 'column',
+  };
+
+  // Desktop — always visible
+  if (isDesktop) {
+    return (
+      <aside style={sidebarStyle}>
+        <SidebarContent onClose={() => {}} />
+      </aside>
+    );
+  }
+
+  // Mobile — slide in overlay
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 md:hidden"
             onClick={() => setIsOpen(false)}
+            style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(4px)', zIndex: 30 }}
           />
-        )}
-      </AnimatePresence>
-      <aside
-        className={`fixed md:relative inset-y-0 left-0 z-40 md:z-auto bg-brand-surface w-72 shadow-2xl md:shadow-none transform transition-transform duration-300 ease-in-out md:translate-x-0 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-6 border-b border-slate-100 h-20">
-            <h1 className="text-3xl font-black text-brand-primary tracking-tighter">Lucidia</h1>
-            <button onClick={() => setIsOpen(false)} className="md:hidden p-2 text-brand-text-light hover:bg-slate-50 rounded-lg">
-              <XMarkIcon />
-            </button>
-          </div>
-          <nav className="flex-1 p-6 overflow-y-auto">
-            <motion.ul
-              initial="hidden"
-              animate="visible"
-              className="space-y-1"
-            >
-              {renderLinks()}
-            </motion.ul>
-          </nav>
-          <div className="p-6 border-t border-slate-100">
-            <div className="mb-4 px-3">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Profile</p>
-                <p className="font-bold text-brand-text truncate">{user?.name}</p>
-                <p className="text-xs text-brand-text-light capitalize">{user?.role}</p>
-            </div>
-            <button
-              onClick={logout}
-              className="w-full flex items-center p-3 rounded-xl text-brand-text-light hover:bg-red-50 hover:text-red-700 transition-all duration-200"
-            >
-              <span className="w-6 h-6 mr-3"><ArrowLeftOnRectangleIcon /></span>
-              <span className="font-bold">Logout</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-    </>
+          <motion.aside
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'tween', duration: 0.25 }}
+            style={{ ...sidebarStyle, position: 'fixed', top: 0, left: 0, zIndex: 40, height: '100vh' }}
+          >
+            <SidebarContent onClose={() => setIsOpen(false)} />
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 

@@ -110,40 +110,28 @@ const MemoriesPage: React.FC = () => {
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
         {memories.map(m => (
-          <div
-            key={m.id}
-            className="glass-card overflow-hidden border border-white/40 flex flex-col h-full bg-white/40"
-          >
-            {/* Photo — same h-56 as FaceCard */}
+          <div key={m.id} style={{ background: 'rgba(255,255,255,0.85)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.6)', display: 'flex', flexDirection: 'column' }}>
             {m.imageUrl ? (
-              <img src={m.imageUrl} alt={m.title} className="w-full h-56 object-cover" />
+              <img src={m.imageUrl} alt={m.title} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
             ) : (
-              <div className="w-full h-56 bg-slate-100 flex items-center justify-center text-gray-300">
+              <div style={{ width: '100%', height: '160px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
                 <PhotoIcon />
               </div>
             )}
-
-            <div className="p-5 flex flex-col flex-grow">
-              <h3 className="text-xl font-bold text-brand-text">{m.title}</h3>
-              <p className="text-brand-primary font-semibold text-sm mb-2">
+            <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+              <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#334155' }}>{m.title}</h3>
+              <p style={{ margin: '0 0 6px', fontSize: '0.8rem', fontWeight: 600, color: '#6366F1' }}>
                 {new Date(m.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
               </p>
-              <p className="text-brand-text-light text-sm italic flex-grow line-clamp-3">"{m.description}"</p>
-
-              <div className="flex justify-end space-x-2 mt-4 flex-wrap gap-2">
-                <Button size="sm" onClick={() => handleNarrate(m)} loading={narratingId === m.id}>
-                  <SparklesIcon /> Story
-                </Button>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', flex: 1, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>&#34;{m.description}&#34;</p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '12px', flexWrap: 'wrap' }}>
+                <Button size="sm" className="p-1.5" onClick={() => handleNarrate(m)} loading={narratingId === m.id}><SparklesIcon /></Button>
                 {user?.role === 'caretaker' && (
                   <>
-                    <Button size="sm" variant="secondary" onClick={() => openEdit(m)}>
-                      <PencilIcon /> Edit
-                    </Button>
-                    <Button size="sm" variant="danger" onClick={() => handleDelete(m.id)}>
-                      <TrashIcon /> Delete
-                    </Button>
+                    <Button size="sm" variant="secondary" className="p-1.5" onClick={() => openEdit(m)}><PencilIcon /></Button>
+                    <Button size="sm" variant="danger" className="p-1.5" onClick={() => handleDelete(m.id)}><TrashIcon /></Button>
                   </>
                 )}
               </div>
@@ -151,9 +139,9 @@ const MemoriesPage: React.FC = () => {
           </div>
         ))}
         {memories.length === 0 && (
-          <div className="col-span-full text-center py-20 text-gray-400">
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
             <PhotoIcon />
-            <p className="mt-2">No memories yet</p>
+            <p style={{ marginTop: '8px' }}>No memories yet</p>
           </div>
         )}
       </div>

@@ -21,20 +21,20 @@ interface EditFaceState {
 const FaceCard: React.FC<{ face: FaceProfile, role: UserRole, onEdit?: (face: FaceProfile) => void }> = ({ face, role, onEdit }) => {
     const { deleteFace } = useFaceStore();
     return (
-        <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass-card overflow-hidden border border-white/40 flex flex-col h-full bg-white/40">
-            <img src={face.imageUrl} alt={face.name} className="w-full h-56 object-cover"/>
-            <div className="p-5 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-brand-text">{face.name}</h3>
-                <p className="text-brand-primary font-semibold text-sm mb-2">{face.relation}</p>
-                <p className="text-brand-text-light text-sm italic flex-grow">"{face.notes}"</p>
+        <div style={{ background: 'rgba(255,255,255,0.85)', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid rgba(255,255,255,0.6)', display: 'flex', flexDirection: 'column' }}>
+            <img src={face.imageUrl} alt={face.name} style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+            <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                <h3 style={{ margin: '0 0 4px', fontSize: '1rem', fontWeight: 700, color: '#334155' }}>{face.name}</h3>
+                <p style={{ margin: '0 0 6px', fontSize: '0.8rem', fontWeight: 600, color: '#6366F1' }}>{face.relation}</p>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', flex: 1 }}>&#34;{face.notes}&#34;</p>
                 {role === UserRole.CARETAKER && (
-                    <div className="flex justify-end space-x-2 mt-4">
-                        <Button variant="secondary" size="sm" className="p-2" title="Edit" onClick={() => onEdit?.(face)}><PencilIcon /></Button>
-                        <Button variant="danger" size="sm" className="p-2" onClick={() => deleteFace(face.id)} title="Delete"><TrashIcon /></Button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '12px' }}>
+                        <Button variant="secondary" size="sm" className="p-1.5" title="Edit" onClick={() => onEdit?.(face)}><PencilIcon /></Button>
+                        <Button variant="danger" size="sm" className="p-1.5" onClick={() => deleteFace(face.id)} title="Delete"><TrashIcon /></Button>
                     </div>
                 )}
             </div>
-        </motion.div>
+        </div>
     );
 };
 
@@ -310,13 +310,13 @@ const CaretakerFacesView = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
                 {faces.map(f => (
                     <FaceCard key={f.id} face={f} role={user?.role!} onEdit={openEdit} />
                 ))}
                 {faces.length === 0 && (
-                    <div className="col-span-full py-20 text-center text-brand-text-light glass-card bg-white/30">
-                        <p className="text-lg">No face profiles added yet.</p>
+                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>
+                        <p>No face profiles added yet.</p>
                     </div>
                 )}
             </div>

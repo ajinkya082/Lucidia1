@@ -134,7 +134,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-brand-background text-brand-text">
+    <div className="flex h-screen bg-brand-background text-brand-text overflow-hidden">
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col overflow-hidden">

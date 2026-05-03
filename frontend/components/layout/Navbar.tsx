@@ -15,13 +15,14 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
+            {/* Hamburger — mobile only */}
             <button
               onClick={onMenuClick}
-              className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-primary"
+              className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             >
               <Bars3Icon />
             </button>
-            <div className="hidden md:block ml-4 text-xl font-semibold text-brand-text">
+            <div className="ml-4 text-xl font-semibold text-brand-text">
               Welcome, {user?.name}
             </div>
           </div>

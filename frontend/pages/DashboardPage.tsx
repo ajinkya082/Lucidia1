@@ -14,8 +14,8 @@ import { getUserById } from '../src/api/userApi';
 // ==========================
 const DashboardCard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
-    whileHover={{ y: -5 }}
-    className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/50"
+    whileHover={{ y: -2 }}
+    className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow border border-white/50"
   >
     {children}
   </motion.div>
@@ -47,37 +47,36 @@ const PatientDashboard = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
-      <h2 className="text-4xl font-bold">
-        Hello, {user?.name} 👋
-      </h2>
+    <div className="max-w-2xl mx-auto space-y-4 pb-12">
+      <h2 className="text-3xl font-bold">Hello, {user?.name} 👋</h2>
 
-      <Button onClick={handleSOS} variant="danger">
-        🚨 SOS
+      <Button onClick={handleSOS} variant="danger" className="w-full py-4 text-lg">
+        🚨 SOS — Call for Help
       </Button>
 
       <DashboardCard>
-        <h3 className="text-xl font-bold mb-3">Upcoming Reminders</h3>
+        <h3 className="text-lg font-bold mb-3">Upcoming Reminders</h3>
         {upcomingReminders.length === 0 ? (
-          <p>No reminders</p>
+          <p className="text-gray-400 text-sm">No upcoming reminders</p>
         ) : (
           upcomingReminders.map(r => (
-            <div key={r.id} className="border-b py-2">
-              {r.title} - {new Date(r.time).toLocaleString()}
+            <div key={r.id} className="border-b py-2 text-sm">
+              <p className="font-semibold">{r.title}</p>
+              <p className="text-gray-500">{new Date(r.time).toLocaleString()}</p>
             </div>
           ))
         )}
       </DashboardCard>
 
       <DashboardCard>
-        <h3 className="text-xl font-bold mb-3">My Memories</h3>
+        <h3 className="text-lg font-bold mb-3">My Memories</h3>
         {memories.length === 0 ? (
-          <p>No memories yet</p>
+          <p className="text-gray-400 text-sm">No memories yet</p>
         ) : (
           memories.slice(0, 3).map(m => (
-            <div key={m.id} className="border-b py-2">
+            <div key={m.id} className="border-b py-2 text-sm">
               <p className="font-semibold">{m.title}</p>
-              <p className="text-sm text-gray-500">{new Date(m.date).toLocaleDateString('en-IN')}</p>
+              <p className="text-gray-500">{new Date(m.date).toLocaleDateString('en-IN')}</p>
             </div>
           ))
         )}
@@ -126,82 +125,58 @@ const CaretakerDashboard = () => {
   }, [location.key]);
 
   return (
-    <div className="space-y-8 pb-12">
-      <h2 className="text-4xl font-bold">
-        Caretaker Dashboard 👨‍⚕️
-      </h2>
+    <div className="max-w-2xl mx-auto space-y-4 pb-12">
+      <h2 className="text-3xl font-bold">Caretaker Dashboard</h2>
 
-      {/* 👤 Patient Info */}
       <DashboardCard>
-        <h3 className="text-xl font-bold mb-3">Patient Info</h3>
-
-        <p>
-          <b>Name:</b> {patientName ?? "Loading..."}
-        </p>
-
-        <p>
-          <b>Patient ID:</b> {user?.patientId}
-        </p>
+        <h3 className="text-lg font-bold mb-2">Patient Info</h3>
+        <p className="text-sm"><b>Name:</b> {patientName ?? 'Loading...'}</p>
+        <p className="text-sm"><b>Patient ID:</b> {user?.patientId}</p>
       </DashboardCard>
 
-      {/* 🚨 Alerts */}
       <DashboardCard>
-        <h3 className="text-xl font-bold mb-3">Alerts</h3>
-
+        <h3 className="text-lg font-bold mb-2">Recent Alerts</h3>
         {alerts.length === 0 ? (
-          <p>No alerts</p>
+          <p className="text-gray-400 text-sm">No alerts</p>
         ) : (
-          alerts.map(a => (
-            <div key={a.id} className="border-b py-2">
-              {a.message}
+          alerts.slice(0, 3).map(a => (
+            <div key={a.id} className="border-b py-2 text-sm">
+              <p className={`font-semibold ${a.type === 'SOS' ? 'text-red-600' : 'text-orange-500'}`}>{a.type === 'SOS' ? 'SOS' : 'Safe Zone Exit'}</p>
+              <p>{a.message}</p>
             </div>
           ))
         )}
       </DashboardCard>
 
-      {/* ⏰ Reminders */}
       <DashboardCard>
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-xl font-bold">Reminders</h3>
-          <Button onClick={() => navigate('/reminders')}>
-            View All
-          </Button>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-bold">Reminders</h3>
+          <Button size="sm" onClick={() => navigate('/reminders')}>View All</Button>
         </div>
-
         {reminders.length === 0 ? (
-          <p>No reminders</p>
+          <p className="text-gray-400 text-sm">No reminders</p>
         ) : (
-          reminders.slice(0, 5).map(r => (
-            <div key={r.id} className="border-b py-2">
-              <p className={r.isCompleted ? 'line-through text-gray-400' : ''}>
-                {r.title}
-              </p>
-              <p className="text-sm text-gray-500">
-                {new Date(r.time).toLocaleString('en-IN')}
-              </p>
+          reminders.slice(0, 4).map(r => (
+            <div key={r.id} className="border-b py-2 text-sm">
+              <p className={r.isCompleted ? 'line-through text-gray-400' : 'font-semibold'}>{r.title}</p>
+              <p className="text-gray-500">{new Date(r.time).toLocaleString('en-IN')}</p>
             </div>
           ))
         )}
       </DashboardCard>
 
-      {/* 📸 Memories */}
       <DashboardCard>
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-xl font-bold">Memories</h3>
-          <Button onClick={() => navigate('/memories')}>
-            View All
-          </Button>
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-bold">Memories</h3>
+          <Button size="sm" onClick={() => navigate('/memories')}>View All</Button>
         </div>
-
         {memories.length === 0 ? (
-          <p>No memories</p>
+          <p className="text-gray-400 text-sm">No memories</p>
         ) : (
-          memories.slice(0, 5).map(m => (
-            <div key={m.id} className="border-b py-2">
+          memories.slice(0, 4).map(m => (
+            <div key={m.id} className="border-b py-2 text-sm">
               <p className="font-semibold">{m.title}</p>
-              <p className="text-sm text-gray-500">
-                {new Date(m.date).toLocaleDateString('en-IN')}
-              </p>
+              <p className="text-gray-500">{new Date(m.date).toLocaleDateString('en-IN')}</p>
             </div>
           ))
         )}
